@@ -1,10 +1,7 @@
 ﻿using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ASPNET_Core_Books_Api_Demo.Controllers
@@ -19,6 +16,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         {
             _BooksRepository = booksRepository;
         }
+
         [HttpGet("")]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -26,6 +24,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
 
             return Ok(books);
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBookById([FromRoute] int id)
         {
@@ -38,7 +37,28 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         public async Task<IActionResult> AddBook([FromBody] BookModel bookModl)
         {
             var id = await _BooksRepository.AddBookAsync(bookModl);
-            return CreatedAtAction(nameof(GetBookById), new { Id = id, Controller = "books"},id);
+            return CreatedAtAction(nameof(GetBookById), new { Id = id, Controller = "books" }, id);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateBook([FromBody] BookModel bookModl, [FromRoute] int id)
+        {
+            await _BooksRepository.UpdateBookAsync(bookModl, id);
+            return CreatedAtAction(nameof(GetBookById), new { Id = id, Controller = "books" }, bookModl);
+        }
+
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateBookProperty([FromBody] JsonPatchDocument document, [FromRoute] int id)
+        {
+            await _BooksRepository.UpdateBookPatchAsync(document, id);
+            return Ok(id);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteBook([FromRoute] int id)
+        {
+            await _BooksRepository.DeleteBookAsync(id);
+            return Ok($"Book No. {id} Deleted Successfully");
         }
     }
 }
