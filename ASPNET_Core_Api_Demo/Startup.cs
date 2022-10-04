@@ -1,6 +1,7 @@
 using ASPNET_Core_Books_Api_Demo.Data;
 using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +9,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace ASPNET_Core_Books_Api_Demo
 {
@@ -27,12 +30,35 @@ namespace ASPNET_Core_Books_Api_Demo
             services.AddDbContext<BooksDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("BooksDbConnStr")));
 
+            //-------------------------identity-------------------------------------//
+            services.AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<BooksDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(option => {
+                option.SaveToken = true;
+                option.RequireHttpsMetadata = false;
+                option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidAudience = Configuration["JWT:ValidAudience"],
+                    ValidIssuer = Configuration["JWT:ValidIssuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:Secret"]))
+                };
+            });
+
             services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASPNET_Core_Books_Api_Demo", Version = "v1" });
             });
             services.AddTransient<IBooksRepository, BooksRepository>();
+            services.AddTransient<IAccountRepo, AccountRepo>();
             services.AddAutoMapper(typeof(Startup));
         }
 
@@ -49,6 +75,7 @@ namespace ASPNET_Core_Books_Api_Demo
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseAuthentication();
 
             app.UseEndpoints(endpoints =>
             {

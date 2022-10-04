@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ASPNET_Core_Books_Api_Demo.Data
 {
-    public class BooksDbContext : DbContext
+    public class BooksDbContext : IdentityDbContext<AppUser>
     {
         public BooksDbContext(DbContextOptions<BooksDbContext> options)
             : base(options)
