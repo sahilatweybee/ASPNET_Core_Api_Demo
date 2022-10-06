@@ -5,7 +5,6 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,13 +15,15 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
     {
         private readonly UserManager<AppUser> _UserManager;
         private readonly SignInManager<AppUser> _SigninManager;
+        private readonly RoleManager<IdentityRole> _RoleManager;
         private readonly IConfiguration _Configuration;
 
-        public AccountRepo(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IConfiguration configuration)
+        public AccountRepo(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
         {
             _UserManager = userManager;
             _SigninManager = signInManager;
             _Configuration = configuration;
+            _RoleManager = roleManager;
         }
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel signUpModl)
@@ -62,6 +63,26 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
                 );
 
             return new JwtSecurityTokenHandler().WriteToken(token: Token);
+        }
+
+        public async Task LogOutAsync()
+        {
+            await _SigninManager.SignOutAsync();
+        }
+
+        public async Task AddRoleAsync(string roleModl)
+        {
+            IdentityRole role = new IdentityRole
+            {
+                Name = roleModl
+            };
+            await _RoleManager.CreateAsync(role);
+        }
+
+        public async Task MakeAdminAsync(string userName)
+        {
+            var user = await _UserManager.FindByNameAsync(userName);
+            await _UserManager.AddToRoleAsync(user, "Admin");
         }
     }
 }

@@ -6,7 +6,10 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
 {
     public interface IAccountRepo
     {
+        Task AddRoleAsync(string roleModl);
         Task<string> LogInAsync(LogInModel logInModl);
+        Task LogOutAsync();
+        Task MakeAdminAsync(string userName);
         Task<IdentityResult> SignUpAsync(SignUpModel signUpModl);
     }
 }

@@ -1,6 +1,7 @@
 using ASPNET_Core_Books_Api_Demo.Data;
 using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,12 +12,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Linq;
+using System.Security.Claims;
 using System.Text;
 
 namespace ASPNET_Core_Books_Api_Demo
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -32,6 +36,7 @@ namespace ASPNET_Core_Books_Api_Demo
 
             //-------------------------identity-------------------------------------//
             services.AddIdentity<AppUser, IdentityRole>()
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<BooksDbContext>()
                 .AddDefaultTokenProviders();
 
@@ -57,8 +62,8 @@ namespace ASPNET_Core_Books_Api_Demo
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "ASPNET_Core_Books_Api_Demo", Version = "v1" });
             });
-            services.AddTransient<IBooksRepository, BooksRepository>();
-            services.AddTransient<IAccountRepo, AccountRepo>();
+            services.AddScoped<IBooksRepository, BooksRepository>();
+            services.AddScoped<IAccountRepo, AccountRepo>();
             services.AddAutoMapper(typeof(Startup));
         }
 
@@ -74,8 +79,8 @@ namespace ASPNET_Core_Books_Api_Demo
 
             app.UseRouting();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

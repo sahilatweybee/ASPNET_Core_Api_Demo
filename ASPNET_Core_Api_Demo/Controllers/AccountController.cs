@@ -1,5 +1,6 @@
 ﻿using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -21,7 +22,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         }
 
         [HttpPost("SignUp")]
-        public async Task<IActionResult> SignUp([FromBody]SignUpModel signUpModl)
+        public async Task<IActionResult> SignUp([FromBody] SignUpModel signUpModl)
         {
             var result = await _AccountRepo.SignUpAsync(signUpModl);
             if (result.Succeeded)
@@ -40,6 +41,35 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
                 return Unauthorized();
             }
             return Ok(result);
+        }
+
+        [HttpPost("LogOut")]
+        public async Task<IActionResult> LogOut()
+        {
+            try
+            {
+                await _AccountRepo.LogOutAsync();
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, e);
+               }
+
+            return Ok();
+        }
+        //[Authorize]
+        [HttpPost("CreateRole")]
+        public async Task<IActionResult> CreateRole([FromBody] string roleModl)
+        {
+            await _AccountRepo.AddRoleAsync(roleModl);
+            return Ok(roleModl);
+        }
+
+        [HttpPost("MakeAdmin")]
+        public async Task<IActionResult> MakeAdmin(UserRoleViewModel userRoleModl)
+        {
+            await _AccountRepo.MakeAdminAsync(userRoleModl.UserName);
+            return Ok(userRoleModl);
         }
     }
 }

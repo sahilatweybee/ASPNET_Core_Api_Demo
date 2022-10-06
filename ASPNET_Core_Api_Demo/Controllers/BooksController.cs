@@ -1,5 +1,6 @@
 ﻿using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -11,12 +12,11 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
     public class BooksController : ControllerBase
     {
         private readonly IBooksRepository _BooksRepository;
-
         public BooksController(IBooksRepository booksRepository)
         {
             _BooksRepository = booksRepository;
         }
-
+        [Authorize(Roles ="Administrator")]
         [HttpGet("")]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -34,6 +34,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         }
 
         [HttpPost("")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddBook([FromBody] BookModel bookModl)
         {
             var id = await _BooksRepository.AddBookAsync(bookModl);
