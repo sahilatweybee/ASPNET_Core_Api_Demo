@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,15 +29,21 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel signUpModl)
         {
-            var user = new AppUser()
+            var userModl = new AppUser()
             {
                 FirstName = signUpModl.FirstName,
                 LastName = signUpModl.LastName,
                 UserName = signUpModl.Email,
-                Email = signUpModl.Email
+                Email = signUpModl.Email,
 
             };
-            return await _UserManager.CreateAsync(user, signUpModl.Password);
+            var result = await _UserManager.CreateAsync(userModl, signUpModl.Password);
+            if (result.Succeeded)
+            {
+                var user = await _UserManager.FindByNameAsync(userModl.Email);
+                await _UserManager.AddToRoleAsync(user, "User");
+            }
+            return result;
         }
 
         public async Task<string> LogInAsync(LogInModel logInModl)
@@ -46,10 +53,11 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
             {
                 return null;
             }
-
+            var userRole = (await _UserManager.GetRolesAsync(await _UserManager.FindByNameAsync(logInModl.UserName))).FirstOrDefault();
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, logInModl.UserName),
+                new Claim(ClaimTypes.Role, userRole),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
             var AuthKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_Configuration["JWT:Secret"]));

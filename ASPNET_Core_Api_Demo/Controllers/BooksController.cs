@@ -16,7 +16,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         {
             _BooksRepository = booksRepository;
         }
-        [Authorize(Roles ="Administrator")]
+        [Authorize(Roles ="Admin")]
         [HttpGet("")]
         public async Task<IActionResult> GetAllBooks()
         {

@@ -57,14 +57,14 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
 
             return Ok();
         }
-        //[Authorize]
+        [Authorize(Roles ="Admin")]
         [HttpPost("CreateRole")]
-        public async Task<IActionResult> CreateRole([FromBody] string roleModl)
+        public async Task<IActionResult> CreateRole([FromForm]string roleModl)
         {
             await _AccountRepo.AddRoleAsync(roleModl);
             return Ok(roleModl);
         }
-
+        [Authorize(Roles = "Admin")]
         [HttpPost("MakeAdmin")]
         public async Task<IActionResult> MakeAdmin(UserRoleViewModel userRoleModl)
         {
