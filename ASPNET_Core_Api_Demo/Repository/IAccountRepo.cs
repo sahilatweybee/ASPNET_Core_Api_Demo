@@ -9,7 +9,7 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
         Task AddRoleAsync(string roleModl);
         Task<string> LogInAsync(LogInModel logInModl);
         Task LogOutAsync();
-        Task MakeAdminAsync(string userName);
+        Task AssignRole(UserRoleViewModel roleModl);
         Task<IdentityResult> SignUpAsync(SignUpModel signUpModl);
     }
 }

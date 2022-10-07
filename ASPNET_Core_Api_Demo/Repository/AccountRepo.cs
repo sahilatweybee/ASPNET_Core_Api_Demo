@@ -53,13 +53,16 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
             {
                 return null;
             }
-            var userRole = (await _UserManager.GetRolesAsync(await _UserManager.FindByNameAsync(logInModl.UserName))).FirstOrDefault();
+            var user = await _UserManager.FindByNameAsync(logInModl.UserName);
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, logInModl.UserName),
-                new Claim(ClaimTypes.Role, userRole),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+            foreach (var role in (await _UserManager.GetRolesAsync(user)).ToList())
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
             var AuthKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_Configuration["JWT:Secret"]));
 
             var Token = new JwtSecurityToken(
@@ -87,10 +90,10 @@ namespace ASPNET_Core_Books_Api_Demo.Repository
             await _RoleManager.CreateAsync(role);
         }
 
-        public async Task MakeAdminAsync(string userName)
+        public async Task AssignRole(UserRoleViewModel roleModl)
         {
-            var user = await _UserManager.FindByNameAsync(userName);
-            await _UserManager.AddToRoleAsync(user, "Admin");
+            var user = await _UserManager.FindByNameAsync(roleModl.UserName);
+            await _UserManager.AddToRoleAsync(user, roleModl.Role);
         }
     }
 }

@@ -12,7 +12,5 @@ namespace ASPNET_Core_Books_Api_Demo.Models
         public string UserName { get; set; }
         [Required]
         public string Password { get; set; }
-
-        public string Role { get; set; }
     }
 }

@@ -1,4 +1,5 @@
-﻿using ASPNET_Core_Books_Api_Demo.Models;
+﻿using ASPNET_Core_Books_Api_Demo.Enums;
+using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -42,7 +43,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
             }
             return Ok(result);
         }
-
+        [Authorize]
         [HttpPost("LogOut")]
         public async Task<IActionResult> LogOut()
         {
@@ -57,18 +58,18 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
 
             return Ok();
         }
-        [Authorize(Roles ="Admin")]
+        [Authorize(Roles = AppRoles.Admin)]
         [HttpPost("CreateRole")]
         public async Task<IActionResult> CreateRole([FromForm]string roleModl)
         {
             await _AccountRepo.AddRoleAsync(roleModl);
             return Ok(roleModl);
         }
-        [Authorize(Roles = "Admin")]
-        [HttpPost("MakeAdmin")]
-        public async Task<IActionResult> MakeAdmin(UserRoleViewModel userRoleModl)
+        [Authorize(Roles = AppRoles.Admin)]
+        [HttpPost("AssignRole")]
+        public async Task<IActionResult> AssignRole(UserRoleViewModel userRoleModl)
         {
-            await _AccountRepo.MakeAdminAsync(userRoleModl.UserName);
+            await _AccountRepo.AssignRole(userRoleModl);
             return Ok(userRoleModl);
         }
     }

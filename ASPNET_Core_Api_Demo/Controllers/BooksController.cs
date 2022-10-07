@@ -1,14 +1,17 @@
-﻿using ASPNET_Core_Books_Api_Demo.Models;
+﻿using ASPNET_Core_Books_Api_Demo.Enums;
+using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ASPNET_Core_Books_Api_Demo.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class BooksController : ControllerBase
     {
         private readonly IBooksRepository _BooksRepository;
@@ -16,7 +19,6 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         {
             _BooksRepository = booksRepository;
         }
-        [Authorize(Roles ="Admin")]
         [HttpGet("")]
         public async Task<IActionResult> GetAllBooks()
         {
@@ -34,7 +36,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         }
 
         [HttpPost("")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = AppRoles.Creator)]
         public async Task<IActionResult> AddBook([FromBody] BookModel bookModl)
         {
             var id = await _BooksRepository.AddBookAsync(bookModl);
@@ -42,6 +44,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = AppRoles.Creator)]
         public async Task<IActionResult> UpdateBook([FromBody] BookModel bookModl, [FromRoute] int id)
         {
             await _BooksRepository.UpdateBookAsync(bookModl, id);
@@ -49,6 +52,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         }
 
         [HttpPatch("{id}")]
+        [Authorize(Roles = AppRoles.Creator)]
         public async Task<IActionResult> UpdateBookProperty([FromBody] JsonPatchDocument document, [FromRoute] int id)
         {
             await _BooksRepository.UpdateBookPatchAsync(document, id);
@@ -56,6 +60,7 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = AppRoles.Admin)]
         public async Task<IActionResult> DeleteBook([FromRoute] int id)
         {
             await _BooksRepository.DeleteBookAsync(id);
