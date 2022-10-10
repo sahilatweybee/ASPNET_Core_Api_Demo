@@ -1,7 +1,6 @@
 using ASPNET_Core_Books_Api_Demo.Data;
 using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -12,8 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Linq;
-using System.Security.Claims;
 using System.Text;
 
 namespace ASPNET_Core_Books_Api_Demo
@@ -40,11 +37,13 @@ namespace ASPNET_Core_Books_Api_Demo
                 .AddEntityFrameworkStores<BooksDbContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddAuthentication(options => {
+            services.AddAuthentication(options =>
+            {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(option => {
+            }).AddJwtBearer(option =>
+            {
                 option.SaveToken = true;
                 option.RequireHttpsMetadata = false;
                 option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()

@@ -2,11 +2,8 @@
 using ASPNET_Core_Books_Api_Demo.Models;
 using ASPNET_Core_Books_Api_Demo.Repository;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ASPNET_Core_Books_Api_Demo.Controllers
@@ -54,13 +51,13 @@ namespace ASPNET_Core_Books_Api_Demo.Controllers
             catch (Exception e)
             {
                 return StatusCode(500, e);
-               }
+            }
 
             return Ok();
         }
         [Authorize(Roles = AppRoles.Admin)]
         [HttpPost("CreateRole")]
-        public async Task<IActionResult> CreateRole([FromForm]string roleModl)
+        public async Task<IActionResult> CreateRole([FromForm] string roleModl)
         {
             await _AccountRepo.AddRoleAsync(roleModl);
             return Ok(roleModl);
